@@ -25,18 +25,18 @@ class NowaBuildKotlin {
         srcPath.listFiles().forEach {
             val fileName = it.name
             when {
-                fileName.endsWith(".html") -> {
+                isHtmlRes(fileName) -> {
                     println("Copy file: $fileName")
 
                     val htmlFile = File("$templatesPath$fileName")
                     it.copyTo(target = htmlFile, overwrite = true)
                     replaceJsCssSrc(htmlFile)
                 }
-                fileName.endsWith(".js") -> {
+                isJsRes(fileName) -> {
                     println("Copy file: $fileName")
                     it.copyTo(target = File("$jsFile$fileName"), overwrite = true)
                 }
-                fileName.endsWith(".css") -> {
+                isCssRes(fileName) -> {
                     println("Copy file: $fileName")
                     it.copyTo(target = File("$cssPath$fileName"), overwrite = true)
                 }
@@ -45,6 +45,16 @@ class NowaBuildKotlin {
 
 
     }
+
+    private fun isHtmlRes(fileName: String) = fileName.endsWith(".html")
+
+    private fun isJsRes(fileName: String) = fileName.endsWith(".js")
+
+    private fun isCssRes(fileName: String) =
+        fileName.endsWith(".css")
+                || fileName.endsWith(".jpg")
+                || fileName.endsWith(".png")
+                || fileName.endsWith(".jpeg")
 
 
     fun replaceJsCssSrc(htmlFile: File) {
