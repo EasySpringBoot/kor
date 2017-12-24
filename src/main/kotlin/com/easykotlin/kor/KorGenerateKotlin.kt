@@ -142,7 +142,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import javax.servlet.http.HttpServletRequest
 
 /**
- * Created by Kor on ${datestamp}.
+ * Created by Kor on ${datestamp}. author: 东海陈光剑
  */
 @RestController
 @RequestMapping("/${entityName.toLowerCase()}")

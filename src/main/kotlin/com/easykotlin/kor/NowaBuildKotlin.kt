@@ -1,9 +1,6 @@
 package com.easykotlin.kor
 
-import java.io.BufferedReader
 import java.io.File
-import java.io.InputStreamReader
-import java.lang.StringBuilder
 
 class NowaBuildKotlin {
     fun nowaBuild(projectDir: String) {
@@ -27,10 +24,12 @@ class NowaBuildKotlin {
             when {
                 isHtmlRes(fileName) -> {
                     println("Copy file: $fileName")
+                    val componentName = fileName.substring(0, fileName.lastIndexOf(".html"))
+                    val htmlText = htmlFileTemplate(component = componentName)
+                    it.writeText(htmlText)
 
                     val htmlFile = File("$templatesPath$fileName")
                     it.copyTo(target = htmlFile, overwrite = true)
-                    replaceJsCssSrc(htmlFile)
                 }
                 isJsRes(fileName) -> {
                     println("Copy file: $fileName")
@@ -57,55 +56,44 @@ class NowaBuildKotlin {
                 || fileName.endsWith(".jpeg")
 
 
-    fun replaceJsCssSrc(htmlFile: File) {
-        val oldJsSrc = """<script src="/"""
-        val oldJsSrcParticular = """<script src="//"""
-        val newJsSrc = """<script src="/js/"""
+    fun htmlFileTemplate(component: String): String {
+        return """<!-- Created By Kor Mon Dec 25 00:00:11 CST 2017, author: 东海陈光剑 -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>${component}</title>
 
-        val oldCssSrc = """<link rel="stylesheet" href="/"""
-        val newCssSrc = """<link rel="stylesheet" href="/css/"""
+    <!-- 兼容包资源加载 -->
+    <!--[if lte IE 9]>
+    <script src="//g.alicdn.com/platform/c/??es5-shim/4.1.12/es5-shim.min.js,es5-shim/4.1.12/es5-sham.min.js,console-polyfill/0.2.1/index.min.js,respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
 
-        var lines = StringBuilder()
-        htmlFile.readLines().forEach {
-            var line = it
-            if (line.contains(oldJsSrc) && !line.contains(oldJsSrcParticular)) {
-                line = line.replace(oldJsSrc, newJsSrc)
-            } else if (line.contains(oldCssSrc)) {
-                line = line.replace(oldCssSrc, newCssSrc)
-            }
+    <script src="//g.alicdn.com/platform/c/??lodash/4.6.1/lodash.min.js,react/0.14.2/react-with-addons.min.js,react/0.14.2/react-dom.min.js,lie/3.0.2/dist/lie.polyfill.min.js,react-router/2.8.1/umd/ReactRouter.min.js"></script>
 
-            lines.append(line + "\n")
-        }
 
-        htmlFile.writeText(lines.toString())
+    <!-- 使用 Uxcore.Mention 时，需要引入 rangy -->
+    <!-- <script src="//g.alicdn.com/platform/c/rangy/1.3.0/rangy-core.min.js"></script> -->
+    <!-- 使用 Uxcore.Tinymce 或 Uxcore.Form.EditorFormField 时，需要引入 tinymce -->
+    <!-- <script src="//g.alicdn.com/platform/c/tinymce/4.3.12/tinymce.min.js"></script> -->
+
+    <!-- Nowa Server 注入位置 -->
+    <!-- nowa server injects -->
+
+    <!-- 项目样式资源加载 -->
+    <link rel="stylesheet" href="/css/app.css">
+    <link rel="stylesheet" href="/css/${component}.css">
+</head>
+<body>
+<div id="App"></div>
+<!-- 项目脚本资源加载 -->
+<script src="/js/app.js"></script>
+<script src="/js/${component}.js"></script>
+</body>
+</html>"""
+
     }
 
-
-    /**
-    在 Kotlin 中，目前还没有对 String 类和 Process 扩展这样的函数。其实扩展这样的函数非常简单。我们完全可以自己扩展。
-    首先，我们来扩展 String 的 execute() 函数。
-     */
-
-    fun String.execute(): Process {
-        val runtime = Runtime.getRuntime()
-        return runtime.exec(this)
-    }
-
-    /** 然后，我们来给 Process 类扩展一个 text函数。 */
-
-    fun Process.text(): String {
-        var output = ""
-        //  输出 Shell 执行的结果
-        val inputStream = this.inputStream
-        val isr = InputStreamReader(inputStream)
-        val reader = BufferedReader(isr)
-        var line: String? = ""
-        while (line != null) {
-            line = reader.readLine()
-            output += line + "\n"
-        }
-        return output
-    }
 }
 
 
